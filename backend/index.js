@@ -1,57 +1,102 @@
-// file: mock-backend.js
+import bcrypt from "bcryptjs";
+import cookieParser from "cookie-parser";
+import "dotenv/config";
 import express from "express";
-import bodyParser from "body-parser";
-import cors from "cors";
+import jwt from "jsonwebtoken";
 
 const app = express();
-app.use(bodyParser.json());
-app.use(cors()); // 允许跨域
+app.use(express.json());
+app.use(cookieParser());
 
-const users = {
-  user1: {
-    id: "user1",
-    email: "test@example.com",
-    name: "Alice",
-    password: "password123",
+// const saltRounds = 2;
+// const hashedPassword = await bcrypt.hash("123456", saltRounds);
+// console.log("hashedPassword", hashedPassword);
+
+// 模拟用户数据库
+const users = [
+  {
+    id: 1,
+    username: "admin",
+    // 密码是 "123456" 的bcrypt哈希
+    password: "$2b$04$MkYCZFewKYYVxWp7Ivi0FOVRY76N67mRlj8zAUZEpoW87/CWD1.hu",
   },
-};
+];
 
 // 登录接口
-app.post("/api/auth/login", (req, res) => {
-  const { email, password } = req.body;
-  const user = Object.values(users).find((u) => u.email === email);
+app.post("/api/login", async (req, res) => {
+  const { username, password } = req.body;
 
-  if (user && user.password === password) {
-    console.log("[Mock Backend] Login successful for:", email);
-    res.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
+  // 1. 查找用户
+  const user = users.find((u) => u.username === username);
+  if (!user) {
+    return res.json({
+      code: 500,
+      msg: "用户名不存在",
     });
-  } else {
-    console.log("[Mock Backend] Login failed for:", email);
-    res.status(401).json({ message: "Invalid credentials" });
+  }
+
+  // 2. 验证密码
+  const validPassword = await bcrypt.compare(password, user.password);
+  if (!validPassword) {
+    return res.json({
+      code: 500,
+      msg: "密码错误",
+    });
+  }
+
+  // 3. 生成JWT
+  const token = jwt.sign({ userId: user.id }, "1234567890", {
+    expiresIn: "1h",
+  });
+
+  console.log("生成的token", token);
+
+  // 4. 设置安全Cookie
+  res.cookie("auth_token", token, {
+    httpOnly: true,
+    secure: true, // https
+    sameSite: "strict",
+    //domain: "localhost",
+    path: "/",
+    maxAge: 3600000, // 1小时
+  });
+
+  // 5. 返回成功响应（不含敏感信息）
+  res.json({
+    code: 200,
+    msg: "登陆成功",
+    data: { id: user.id, username: user.username },
+  });
+});
+
+// 受保护的路由示例
+app.get("/api/profile", (req, res) => {
+  // 从Cookie获取token
+  const token = req.cookies.auth_token;
+
+  if (!token) {
+    return res.status(401).json({ error: "未授权访问" });
+  }
+
+  try {
+    // 验证token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({
+      user: { id: decoded.userId },
+      message: "这是受保护的数据",
+    });
+  } catch (err) {
+    res.status(401).json({ error: "无效的token" });
   }
 });
 
-// 获取用户信息接口 (需要认证)
-app.get("/api/me", (req, res) => {
-  // 真实后端会验证 JWT 或其他 token，这里我们简化，用一个 header 来模拟
-  const userId = req.headers["x-user-id"];
-  if (userId && users[userId]) {
-    console.log("[Mock Backend] Get user info for:", userId);
-    res.json({
-      id: users[userId].id,
-      name: users[userId].name,
-      email: users[userId].email,
-    });
-  } else {
-    console.log("[Mock Backend] Get user info failed, unauthorized.");
-    res.status(401).json({ message: "Unauthorized--服务端" });
-  }
+// 登出接口
+app.post("/api/logout", (req, res) => {
+  res.clearCookie("auth_token");
+  res.json({ success: true });
 });
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8888;
 app.listen(PORT, () => {
-  console.log(`[Mock Backend] Running on http://localhost:${PORT}`);
+  console.log(`服务运行在 http://localhost:${PORT}`);
 });

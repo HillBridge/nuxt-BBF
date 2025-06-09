@@ -3,18 +3,26 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   // 1. 模块配置
-  modules: ["nuxt-security"],
+  // modules: ["nuxt-security"],
 
   // 2. 运行时配置 (密钥管理)
   runtimeConfig: {
-    // 这些密钥只在服务端可用
-    // 真实项目中，这些值应该来自 .env 文件
-    luciaAuthPassword: "a-very-strong-password-for-lucia-encryption",
-    mockBackendUrl: "http://localhost:8080", // 真实后端的地址
+    // 后端API地址
+    backendUrl: process.env.BACKEND_URL,
+
+    // Cookie安全配置
+    authCookie: {
+      name: "__Secure-auth",
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    },
 
     // public 下的变量会暴露给客户端
     public: {},
   },
+
+  ssr: true,
 
   // 3. nuxt-security 高级配置
   security: {
@@ -48,17 +56,10 @@ export default defineNuxtConfig({
 
   // 4. Nitro 配置 (用于开发时的代理，避免CORS问题)
   nitro: {
-    // 这个代理只在服务端 fetch 时生效，对浏览器是透明的
-    // 注意: 这个代理和BFF转发是两回事。这个是为了方便BFF调用后端。
-    // 你也可以不配置这个，直接在BFF里用完整的URL。
-    // routeRules: {
-    //   "/api/**": {
-    //     proxy: {
-    //       to: `${
-    //         process.env.NUXT_MOCK_BACKEND_URL || "http://localhost:8080"
-    //       }/api/**`,
-    //     },
-    //   },
-    // },
+    preset: "node-server",
+    headers: {
+      "X-Content-Type-Options": "nosniff",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+    },
   },
 });
