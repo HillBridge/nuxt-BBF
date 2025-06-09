@@ -62,4 +62,7 @@ export default defineNuxtConfig({
       "Referrer-Policy": "strict-origin-when-cross-origin",
     },
   },
+  routeRules: {
+    "/profile": { hybrid: true },
+  },
 });

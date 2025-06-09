@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import jwt from "jsonwebtoken";
@@ -7,6 +8,14 @@ import jwt from "jsonwebtoken";
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    allowMethods: ["GET", "POST"],
+    allowHeaders: ["Content-Type", "Accept", "Authorization"],
+    credentials: true,
+  })
+);
 
 // const saltRounds = 2;
 // const hashedPassword = await bcrypt.hash("123456", saltRounds);
@@ -21,6 +30,8 @@ const users = [
     password: "$2b$04$MkYCZFewKYYVxWp7Ivi0FOVRY76N67mRlj8zAUZEpoW87/CWD1.hu",
   },
 ];
+
+const JWT_SECRET = "1234567890";
 
 // 登录接口
 app.post("/api/login", async (req, res) => {
@@ -45,18 +56,16 @@ app.post("/api/login", async (req, res) => {
   }
 
   // 3. 生成JWT
-  const token = jwt.sign({ userId: user.id }, "1234567890", {
+  const token = jwt.sign({ userId: user.id }, JWT_SECRET, {
     expiresIn: "1h",
   });
-
-  console.log("生成的token", token);
 
   // 4. 设置安全Cookie
   res.cookie("auth_token", token, {
     httpOnly: true,
-    secure: true, // https
-    sameSite: "strict",
-    //domain: "localhost",
+    secure: false, // https
+    sameSite: "none",
+    domain: "localhost",
     path: "/",
     maxAge: 3600000, // 1小时
   });
@@ -74,19 +83,33 @@ app.get("/api/profile", (req, res) => {
   // 从Cookie获取token
   const token = req.cookies.auth_token;
 
+  console.log("token", token);
+
   if (!token) {
     return res.status(401).json({ error: "未授权访问" });
   }
 
   try {
     // 验证token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    res.json({
-      user: { id: decoded.userId },
-      message: "这是受保护的数据",
-    });
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded?.userId;
+    const user = users.find((u) => u.id === userId);
+    if (user) {
+      res.json({
+        code: 200,
+        msg: "success",
+        data: {
+          username: user?.username,
+        },
+      });
+    } else {
+      res.json({
+        code: 500,
+        msg: "no data",
+      });
+    }
   } catch (err) {
-    res.status(401).json({ error: "无效的token" });
+    console.log(err);
   }
 });
 

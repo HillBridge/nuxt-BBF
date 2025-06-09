@@ -7,8 +7,11 @@ const form = ref({
 
 const handleSubmit = async () => {
     try {
-        await login(form.value)
-        // await navigateTo('/home')
+        const res = await login(form.value)
+        if (res.code === 200) {
+            await navigateTo('/home')
+        }
+
     } catch (err) {
         alert(err.message)
     }

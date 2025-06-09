@@ -21,8 +21,5 @@ export default defineEventHandler(async (event) => {
   console.log("response", response);
 
   // 6. 返回净化后的数据
-  return {
-    user: response?.user,
-    expiresIn: response?.expiresIn,
-  };
+  return response;
 });
