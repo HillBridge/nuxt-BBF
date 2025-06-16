@@ -1,41 +1,23 @@
-// composables/useProfile.ts
 interface Profile {
   username: string;
 }
 
+interface ProfileResponse {
+  data: Profile;
+}
+
 export const useProfile = () => {
-  const fetchProfile = async () => {
-    const config = useRuntimeConfig();
-
-    const backendUrl = `${config.backendUrl}/api/profile`;
-
-    console.log("backendUrl", backendUrl);
-
-    const { data, error, refresh } = await useFetch<{ data: Profile }>(
-      backendUrl,
-      {
-        method: "GET",
-        credentials: "include", // 必须包含凭证
-        // headers: {
-        //   "Cache-Control": "no-cache", // 避免缓存干扰
-        // },
-        onResponseError({ response }) {
-          // 处理401未授权
-          if (response.status === 401) {
-            navigateTo(
-              "/login?redirect=" + encodeURIComponent(useRoute().path)
-            );
-          }
-        },
-      }
-    );
+  const fetchProfileInfo = async () => {
+    const response = await useSafeFetch<ProfileResponse>("/api/profile", {
+      method: "GET",
+      credentials: "include",
+    });
 
     return {
-      profile: data.value?.data,
-      error,
-      refresh,
+      ...response,
+      profile: response.data.value?.data,
     };
   };
 
-  return { fetchProfile };
+  return { fetchProfileInfo };
 };

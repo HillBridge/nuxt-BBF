@@ -7,9 +7,7 @@ export default defineNuxtConfig({
 
   // 2. 运行时配置 (密钥管理)
   runtimeConfig: {
-    // 后端API地址
     backendUrl: process.env.BACKEND_URL,
-
     // Cookie安全配置
     authCookie: {
       name: "__Secure-auth",
