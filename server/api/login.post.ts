@@ -6,18 +6,19 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const backendUrl = `${config.backendUrl}/api/login`;
 
-  const response: any = await $fetch(backendUrl, {
-    method: "POST",
-    body,
-    credentials: "include", // 允许携带cookie
-  }).catch((err) => {
+  try {
+    const response = await $fetch(backendUrl, {
+      method: "POST",
+      body,
+      credentials: "include", // 允许携带cookie
+    });
+
+    return response;
+  } catch (err: any) {
     // 3. 错误处理
     throw createError({
       statusCode: err.statusCode || 500,
       message: err.message || "认证服务不可用",
     });
-  });
-
-  // 6. 返回净化后的数据
-  return response;
+  }
 });

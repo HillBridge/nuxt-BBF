@@ -1,5 +1,5 @@
 <script setup>
-const { login } = useAuth()
+const { login } = useAuthApi()
 const form = ref({
   username: 'admin',
   password: '123456'

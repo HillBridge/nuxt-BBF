@@ -6,7 +6,7 @@ interface ProfileResponse {
   data: Profile;
 }
 
-export const useProfile = () => {
+export const useProfileApi = () => {
   const fetchProfileInfo = async () => {
     const response = await useSafeFetch<ProfileResponse>("/api/profile", {
       method: "GET",

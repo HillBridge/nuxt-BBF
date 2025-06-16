@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { fetchProfileInfo } = useProfile();
+const { fetchProfileInfo } = useProfileApi();
 const { profile, error, pending, refresh } = await fetchProfileInfo();
 
 
