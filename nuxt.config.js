@@ -19,7 +19,9 @@ export default defineNuxtConfig({
     },
 
     // public 下的变量会暴露给客户端
-    public: {},
+    public: {
+      backendUrl: process.env.BACKEND_URL,
+    },
   },
 
   ssr: true,
