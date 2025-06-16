@@ -1,4 +1,10 @@
 <script setup lang="ts">
+
+// definePageMeta({
+//     middleware: 'auth' // 使用 ~/middleware/auth.ts
+// })
+
+
 const { fetchProfileInfo } = useProfileApi();
 const { profile, error, pending, refresh } = await fetchProfileInfo();
 

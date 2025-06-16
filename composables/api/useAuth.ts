@@ -1,6 +1,6 @@
 export const useAuthApi = () => {
   const login = async (credentials: { email: string; password: string }) => {
-    const { data, error } = await useFetch("/proxy/api/login", {
+    const { data, error } = await useFetch("/api/login", {
       method: "POST",
       body: credentials,
       credentials: "include", // 必须开启

@@ -11,7 +11,6 @@ export const useSafeFetch = async <T>(url: string, options?: any) => {
     },
     onResponseError({ response }) {
       if (response.status === 401) {
-        alert("401");
         navigateTo("/?redirect=" + encodeURIComponent(useRoute().path));
       }
     },
