@@ -14,6 +14,8 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const { checkAuth } = useAuthApi();
   const isLoggedIn = await checkAuth();
 
+  console.log("auth.global", isLoggedIn);
+
   // 排除登录页面和公开路由
   const publicRoutes = ["/login", "/register", "/forgot-password"];
 
@@ -25,11 +27,27 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     });
   }
 
-  // 如果用户未登录且访问受保护页面，重定向到登录页
+  const clearCookies = () => {
+    const cookies = useCookie("auth_token");
+    const isLoggedInCookie = useCookie("is_logged_in");
+    cookies.value = null;
+    isLoggedInCookie.value = null;
+  };
+
+  // 如果用户未登录且访问受保护页面，清除 cookie 并重定向到登录页
   if (!isLoggedIn && !publicRoutes.includes(to.path)) {
-    return navigateTo("/login", {
-      redirectCode: 302,
-      external: false,
-    });
+    try {
+      const { logout } = useAuthApi();
+      const res: any = await logout();
+      if (res.code === 200) {
+        clearCookies();
+        return navigateTo("/login", {
+          redirectCode: 302,
+          external: false,
+        });
+      }
+    } catch (error) {
+      console.error("登出失败:", error);
+    }
   }
 });

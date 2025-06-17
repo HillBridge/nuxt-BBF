@@ -71,16 +71,6 @@ app.post("/api/login", async (req, res) => {
     maxAge: 3600000, // 1小时
   });
 
-  // 设置前端可访问的登录状态cookie
-  res.cookie("is_logged_in", "true", {
-    httpOnly: false,
-    secure: false,
-    sameSite: "lax",
-    domain: "localhost",
-    path: "/",
-    maxAge: 3600000, // 1小时
-  });
-
   // 5. 返回成功响应（不含敏感信息）
   res.json({
     code: 200,
@@ -117,21 +107,24 @@ app.get("/api/profile", (req, res) => {
         },
       });
     } else {
-      res.json({
+      return res.json({
         code: 500,
         msg: "no data",
       });
     }
   } catch (err) {
-    console.log(err);
+    console.log("token无效", err);
   }
 });
 
 // 登出接口
 app.post("/api/logout", (req, res) => {
-  res.clearCookie("auth_token");
-  res.clearCookie("is_logged_in");
-  res.json({ success: true });
+  console.log("server-logout");
+  res.json({
+    code: 200,
+    msg: "登出成功",
+    success: true,
+  });
 });
 
 // 验证token接口
