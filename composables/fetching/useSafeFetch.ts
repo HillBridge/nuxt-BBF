@@ -1,4 +1,5 @@
 export const useSafeFetch = async <T>(url: string, options?: any) => {
+  const headers = useRequestHeaders(["cookie"]);
   const config = useRuntimeConfig();
   const baseURL = config.public.backendUrl;
 
@@ -7,11 +8,11 @@ export const useSafeFetch = async <T>(url: string, options?: any) => {
     ...options,
     credentials: "include",
     headers: {
-      ...useRequestHeaders(["cookie"]),
+      ...headers,
     },
-    onResponseError({ response }) {
-      if (response.status === 401) {
-        navigateTo("/?redirect=" + encodeURIComponent(useRoute().path));
+    onResponse({ response }) {
+      if (response._data.code === 401) {
+        return navigateTo("/login");
       }
     },
   });

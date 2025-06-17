@@ -36,6 +36,7 @@ const JWT_SECRET = "1234567890";
 // 登录接口
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
+  console.log("login", username, password);
 
   // 1. 查找用户
   const user = users.find((u) => u.username === username);
@@ -70,6 +71,16 @@ app.post("/api/login", async (req, res) => {
     maxAge: 3600000, // 1小时
   });
 
+  // 设置前端可访问的登录状态cookie
+  res.cookie("is_logged_in", "true", {
+    httpOnly: false,
+    secure: false,
+    sameSite: "lax",
+    domain: "localhost",
+    path: "/",
+    maxAge: 3600000, // 1小时
+  });
+
   // 5. 返回成功响应（不含敏感信息）
   res.json({
     code: 200,
@@ -86,7 +97,10 @@ app.get("/api/profile", (req, res) => {
   console.log("token", token);
 
   if (!token) {
-    return res.status(401).json({ error: "未授权访问" });
+    return res.json({
+      code: 401,
+      msg: "未授权访问",
+    });
   }
 
   try {
@@ -116,7 +130,37 @@ app.get("/api/profile", (req, res) => {
 // 登出接口
 app.post("/api/logout", (req, res) => {
   res.clearCookie("auth_token");
+  res.clearCookie("is_logged_in");
   res.json({ success: true });
+});
+
+// 验证token接口
+app.get("/api/authcheck", (req, res) => {
+  const token = req.cookies.auth_token;
+
+  if (!token) {
+    return res.json({
+      code: 401,
+      msg: "未授权访问",
+      authenticated: false,
+    });
+  }
+
+  try {
+    // 验证token
+    const decoded = jwt.verify(token, JWT_SECRET);
+    res.json({
+      code: 200,
+      msg: "success",
+      authenticated: true,
+    });
+  } catch (err) {
+    res.json({
+      code: 401,
+      msg: "token无效",
+      authenticated: false,
+    });
+  }
 });
 
 const PORT = process.env.PORT || 8888;

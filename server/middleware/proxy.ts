@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  console.log("middleware proxy", event.path);
+  // console.log("middleware proxy", event.path, event.method);
 
   // 只代理API请求
   if (!event.path.startsWith("/api")) return;
@@ -16,11 +16,11 @@ export default defineEventHandler(async (event) => {
   }
 
   const config = useRuntimeConfig();
-  const backendUrl = `${config.backendUrl}/api/login`;
+  const backendUrl = `${config.backendUrl}${event.path}`;
 
   const response = await $fetch.raw(backendUrl, {
-    method: "POST",
-    body: await readBody(event),
+    method: event.method,
+    body: event.method === "POST" ? await readBody(event) : undefined,
     credentials: "include",
   });
 
@@ -40,5 +40,15 @@ export default defineEventHandler(async (event) => {
       secure: true, // https
       sameSite: "none",
     });
+
+    setCookie(event, "is_logged_in", "9999", {
+      httpOnly: false,
+      path: "/",
+      maxAge: 3600,
+      secure: true, // https
+      sameSite: "none",
+    });
   }
+
+  return response._data;
 });

@@ -13,5 +13,11 @@ export const useAuthApi = () => {
     return data.value;
   };
 
-  return { login };
+  const checkAuth = async () => {
+    const isLoggedIn = useCookie("is_logged_in");
+
+    return isLoggedIn.value == "9999";
+  };
+
+  return { login, checkAuth };
 };

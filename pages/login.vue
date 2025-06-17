@@ -11,7 +11,6 @@ const handleSubmit = async () => {
     if (res.code === 200) {
       await navigateTo('/profile')
     }
-    console.log("login success", res);
   } catch (err) {
     alert(`login error: ${err.message}`);
   }

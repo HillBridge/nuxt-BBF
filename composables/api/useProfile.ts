@@ -8,10 +8,7 @@ interface ProfileResponse {
 
 export const useProfileApi = () => {
   const fetchProfileInfo = async () => {
-    const response = await useSafeFetch<ProfileResponse>("/api/profile", {
-      method: "GET",
-      credentials: "include",
-    });
+    const response = await useSafeFetch<ProfileResponse>("/api/profile");
 
     return {
       ...response,
