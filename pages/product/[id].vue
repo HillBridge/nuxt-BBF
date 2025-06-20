@@ -15,7 +15,12 @@
     </div>
 
     <div v-else>
+      <JdLogo />
+      <!-- 被JdErrorBoundary包裹的组件 -->
+      <CartManager />
+      <!-- ProductDetailHero -->
       <ProductDetailHero :product="productData?.value || undefined" />
+      <!-- ProductRecommendations -->
       <ProductRecommendations />
     </div>
   </div>
@@ -43,6 +48,9 @@ try {
   const { data } = await useSafeFetch<ProductData>(`/api/products/${id}`, {
     transform: (data: ProductData) => {
       if (data.code !== 200) {
+
+        // 当http成功, 但是业务错误, 将后台的错误信息以ui错误的形式展示出来, 并提供重试, 返回首页, 联系客服, 反馈问题等操作
+        // 相比于弹出框 可以更长久的展示错误信息, 并提供操作
         throwJdError({
           type: 'BUSINESS',
           code: 'PRODUCT_UNAVAILABLE',

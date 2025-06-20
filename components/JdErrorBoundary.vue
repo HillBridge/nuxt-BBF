@@ -3,36 +3,12 @@
     <slot />
 
     <template #fallback="{ error, reset }">
-      错误信息: {{ error.message }}
-      <div class="jd-error-container">
-        <div class="error-header">
-          <JdLogo class="error-logo" />
-          <h2 class="error-title">服务暂时不可用</h2>
-        </div>
-
-        <div class="error-content">
-          <component :is="getErrorIllustration(error)" />
-
-          <div class="error-details">
-            <p class="error-message">{{ getUserFriendlyMessage(error) }}</p>
-            <p v-if="error.code" class="error-code">错误代码: {{ error.code }}</p>
-          </div>
-
-          <div class="error-actions">
-            <JdButton v-for="action in getRecoveryActions(error)" :key="action.key" :type="action.type"
-              @click="executeAction(action, reset)">
-              {{ action.label }}
-            </JdButton>
-          </div>
-        </div>
-
-        <div v-if="showTechDetails" class="technical-details">
-          <p @click="toggleDetails">技术详情 ▼</p>
-          <pre v-if="detailsExpanded">{{ error.stack }}</pre>
-        </div>
-      </div>
+      <JdErrorBoundaryFallback :error="error" @reset="reset" />
     </template>
   </NuxtErrorBoundary>
+
+  <!-- 显示异步错误的 fallback -->
+  <JdErrorBoundaryFallback v-if="asyncError" :error="asyncError" @reset="handleAsyncErrorReset" />
 </template>
 
 <script lang="ts" setup>
@@ -58,6 +34,7 @@ const userState = useUserStore()
 const detailsExpanded = ref(false)
 const lastError = ref<JdError | null>(null)
 const retryCount = ref(0)
+const asyncError = ref<JdError | null>(null)
 
 const errorContext = computed<ErrorContext>(() => ({
   route: currentRoute.value.path,
@@ -83,6 +60,30 @@ const handleError = (error: any) => {
   }
 }
 
+// 处理异步错误
+const handleAsyncError = (error: any) => {
+  console.log("JdErrorBoundary handleAsyncError", error);
+  const normalizedError = normalizeError(error)
+  asyncError.value = normalizedError
+  lastError.value = normalizedError
+
+  trackError({
+    error: normalizedError,
+    context: errorContext.value,
+    severity: normalizedError.severity || 'MEDIUM'
+  })
+
+  if (normalizedError.severity === 'CRITICAL') {
+    useEmergencyHandler().handleCriticalError(normalizedError)
+  }
+}
+
+const handleAsyncErrorReset = () => {
+  asyncError.value = null
+  retryCount.value = 0
+  emit('afterRetry', lastError.value)
+}
+
 // 添加客户端错误处理
 onMounted(() => {
   // 只在客户端添加全局错误监听
@@ -90,14 +91,14 @@ onMounted(() => {
     const handleGlobalError = (event: ErrorEvent) => {
       console.log('Global error caught:', event.error);
       if (event.error && (event.error as any).code) {
-        handleError(event.error);
+        handleAsyncError(event.error);
       }
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.log('Unhandled promise rejection:', event.reason);
       if (event.reason && (event.reason as any).code) {
-        handleError(event.reason);
+        handleAsyncError(event.reason);
       }
     };
 

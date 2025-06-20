@@ -2,6 +2,7 @@
 <template>
   <JdErrorBoundary :context="{ component: 'CartManager' }">
     <div class="cart-container">
+      <h3>购物车{{ cartItems.length }}</h3>
       <CartItem v-for="item in cartItems" :key="item.id" :item="item" @quantity-change="handleQuantityChange" />
 
       <CartSummary @checkout="handleCheckout" />
@@ -30,7 +31,20 @@ import { throwJdError } from '~/utils/error';
 
 // 创建临时的购物车 store
 const cartStore = {
-  cartItems: ref<Array<{ id: string;[key: string]: any }>>([]),
+  cartItems: ref<Array<{ id: string; name: string; price: string; quantity: number;[key: string]: any }>>([
+    {
+      id: '1',
+      name: '测试商品1',
+      price: '¥99.00',
+      quantity: 1
+    },
+    {
+      id: '2',
+      name: '测试商品2',
+      price: '¥199.00',
+      quantity: 2
+    }
+  ]),
   loadStatus: ref('idle'),
   updateQuantity: async (itemId: string, quantity: number) => {
     // 临时实现
@@ -62,6 +76,8 @@ const refreshCart = async () => {
 
 const handleQuantityChange = async (itemId: string, quantity: number) => {
   try {
+    // throw new Error('test error')
+    // 网络错误等
     await cartStore.updateQuantity(itemId, quantity)
   } catch (error: any) {
     throwJdError({
@@ -104,3 +120,29 @@ const clearCartAndRetry = async () => {
   await cartStore.load()
 }
 </script>
+
+<style scoped>
+.cart-container {
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  margin: 20px 0;
+}
+
+.cart-container h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.cart-error {
+  padding: 20px;
+  text-align: center;
+}
+
+.emergency-actions {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+</style>
