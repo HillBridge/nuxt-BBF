@@ -127,6 +127,26 @@ app.post("/api/logout", (req, res) => {
   });
 });
 
+app.get("/api/products/:id", (req, res) => {
+  const { id } = req.params;
+  console.log("product-id", id);
+  if (id === "1") {
+    res.json({
+      code: 200,
+      msg: "success",
+      data: {
+        available: true,
+        category: "电子产品",
+      },
+    });
+  } else {
+    res.json({
+      code: 500,
+      msg: "no data",
+    });
+  }
+});
+
 // 验证token接口
 app.get("/api/authcheck", (req, res) => {
   const token = req.cookies.auth_token;
