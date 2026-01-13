@@ -1,19 +1,20 @@
 import { throwJdError } from "~/utils/error";
 
-export const useSafeFetch = async <T>(url: string, options?: any) => {
-  const headers = useRequestHeaders(["cookie"]);
+export const useServerFetch = async <T>(url: string, options?: any) => {
+  const cookies = useRequestHeaders(["cookie"]);
   const config = useRuntimeConfig();
   const baseURL = config.public.backendUrl;
+  console.log("useServerFetch", baseURL, cookies, options);
 
   const { data, pending, error, refresh } = await useFetch<T>(url, {
     baseURL,
     ...options,
     credentials: "include",
     headers: {
-      ...headers,
+      ...cookies,
     },
     onResponse({ response }) {
-      if (response._data.code === 401) {
+      if (response._data.code === 401 || response.status === 401) {
         return navigateTo("/login");
       }
     },
@@ -38,8 +39,9 @@ export const useSafeFetch = async <T>(url: string, options?: any) => {
   if (data.value && options?.transform) {
     try {
       const transformedData = options.transform(data.value);
+      console.log("transformedData", transformedData);
       return {
-        data: ref(transformedData),
+        data: transformedData,
         pending,
         error: ref(null),
         refresh,
@@ -58,5 +60,6 @@ export const useSafeFetch = async <T>(url: string, options?: any) => {
     }
   }
 
+  // 直接返回 data，方便解构
   return { data, pending, error, refresh };
 };

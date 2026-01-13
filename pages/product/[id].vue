@@ -45,7 +45,7 @@ const error = ref<any>(null)
 
 // 获取数据
 try {
-  const { data } = await useSafeFetch<ProductData>(`/api/products/${id}`, {
+  const { data } = await useServerFetch<ProductData>(`/api/products/${id}`, {
     transform: (data: ProductData) => {
       if (data.code !== 200) {
 

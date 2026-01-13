@@ -1,6 +1,6 @@
 export { useAuthApi } from "./api/useAuth";
 export { useProfileApi } from "./api/useProfile";
-export { useSafeFetch } from "./fetching/useSafeFetch";
+export { useServerFetch } from "./fetching/useServerFetch";
 export { useDevice } from "./useDevice";
 export { useEmergencyHandler } from "./useEmergencyHandler";
 export { useFeedback } from "./useFeedback";

@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  // console.log("middleware proxy", event.path, event.method);
+  console.log("middleware proxy", event.path, event.method);
 
   // 只代理API请求
   if (!event.path.startsWith("/api")) return;
