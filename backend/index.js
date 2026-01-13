@@ -36,7 +36,7 @@ const JWT_SECRET = "1234567890";
 // 登录接口
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
-  console.log("login", username, password);
+  console.log("login--->", username, password);
 
   // 1. 查找用户
   const user = users.find((u) => u.username === username);
@@ -62,20 +62,20 @@ app.post("/api/login", async (req, res) => {
   });
 
   // 4. 设置安全Cookie
-  res.cookie("auth_token", token, {
-    httpOnly: true,
-    secure: false, // https
-    sameSite: "none",
-    domain: "localhost",
-    path: "/",
-    maxAge: 3600000, // 1小时
-  });
+  // res.cookie("auth_token", token, {
+  //   httpOnly: true,
+  //   secure: false, // https
+  //   sameSite: "none",
+  //   domain: "localhost",
+  //   path: "/",
+  //   maxAge: 3600000, // 1小时
+  // });
 
   // 5. 返回成功响应（不含敏感信息）
   res.json({
     code: 200,
     msg: "登陆成功",
-    data: { id: user.id, username: user.username },
+    data: { id: user.id, username: user.username, token: token },
   });
 });
 

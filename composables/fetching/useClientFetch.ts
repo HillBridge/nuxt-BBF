@@ -1,13 +1,9 @@
 import { throwJdError } from "~/utils/error";
 
-export const useServerFetch = async <T>(url: string, options?: any) => {
+export const useClientFetch = async <T>(url: string, options?: any) => {
   const cookies = useRequestHeaders(["cookie"]);
-  const config = useRuntimeConfig();
-  const baseURL = config.public.backendUrl;
-  console.log("useServerFetch", baseURL, cookies, options);
 
   const { data, pending, error, refresh } = await useFetch<T>(url, {
-    baseURL,
     ...options,
     credentials: "include",
     headers: {

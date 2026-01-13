@@ -7,7 +7,7 @@ const form = ref({
 
 const handleSubmit = async () => {
   try {
-    const { data } = await useServerFetch("/api/login", {
+    const { data } = await useClientFetch("/api/login", {
       method: "POST",
       body: form.value,
     });
@@ -16,7 +16,7 @@ const handleSubmit = async () => {
     console.log("data", data.value, code, message);
     if (code === 200) {
       console.log("navigate to profile");
-      await navigateTo('/profile')
+      // await navigateTo('/profile')
     } else {
       alert(`login error: ${message}`);
     }

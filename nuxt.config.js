@@ -8,6 +8,10 @@ export default defineNuxtConfig({
   // 2. 运行时配置 (密钥管理)
   runtimeConfig: {
     backendUrl: process.env.BACKEND_URL,
+    // Cookie 加密密钥（服务端使用，不会暴露给客户端）
+    cookieSecretKey:
+      process.env.COOKIE_SECRET_KEY ||
+      "default-secret-key-change-in-production",
     // Cookie安全配置
     authCookie: {
       name: "__Secure-auth",
@@ -17,9 +21,9 @@ export default defineNuxtConfig({
     },
 
     // public 下的变量会暴露给客户端
-    public: {
-      backendUrl: process.env.BACKEND_URL,
-    },
+    // public: {
+    //   backendUrl: process.env.BACKEND_URL,
+    // },
   },
 
   ssr: true,

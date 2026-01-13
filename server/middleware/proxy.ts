@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
 
   const config = useRuntimeConfig();
   const backendUrl = `${config.backendUrl}${event.path}`;
+  return;
 
   const response = await $fetch.raw(backendUrl, {
     method: event.method,
