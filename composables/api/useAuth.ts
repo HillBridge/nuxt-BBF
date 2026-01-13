@@ -28,9 +28,7 @@ export const useAuthApi = () => {
   };
 
   const checkAuth = async () => {
-    const isLoggedIn = useCookie("is_logged_in");
-
-    return isLoggedIn.value == "9999";
+    return useCookie("is_logged_in").value;
   };
 
   return { login, logout, checkAuth };
