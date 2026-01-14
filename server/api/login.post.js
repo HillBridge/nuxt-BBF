@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
     setCookie(event, "auth_token", encryptedToken, {
       httpOnly: true, // 防止 XSS 攻击，JavaScript 无法访问
       path: "/",
-      maxAge: 3600, // 1小时，与后端 JWT 过期时间一致
+      maxAge: 5, // 1小时，与后端 JWT 过期时间一致
       secure: process.env.NODE_ENV === "production", // 生产环境使用 HTTPS
       sameSite: "lax", // 防止 CSRF 攻击
     });
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
     setCookie(event, "is_logged_in", "true", {
       httpOnly: false, // 客户端可以读取
       path: "/",
-      maxAge: 3600,
+      maxAge: 5,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });

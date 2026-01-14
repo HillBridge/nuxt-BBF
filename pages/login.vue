@@ -5,7 +5,7 @@ const form = ref({
 })
 
 const handleSubmit = async () => {
-  const { data } = await useClientFetch("/api/login", {
+  const { data } = await useApiFetch("/api/login", {
     method: "POST",
     body: form.value,
   });

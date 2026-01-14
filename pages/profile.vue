@@ -1,10 +1,10 @@
 <script setup lang="ts">
 
-const { data, error, pending, refresh } = await useClientFetch("/api/profile", {
+const { data, error, pending, refresh } = await useApiFetch("/api/profile", {
     method: 'GET'
 });
 
-const { data: profileData } = data.value;
+const { data: profileData } = data?.value;
 
 // 手动刷新数据
 const handleRefresh = (e: MouseEvent) => {

@@ -1,23 +1,11 @@
 export const useAuthApi = () => {
-  const login = async (requestData: { email: string; password: string }) => {
-    const { data, error } = await useFetch("/api/login", {
-      method: "POST",
-      body: requestData,
-    });
-
-    if (error.value) {
-      throw new Error(error.value.data?.message || "登录失败");
-    }
-
-    return data.value;
-  };
-
   const logout = async () => {
-    console.log("useAuthApi-logout");
-    const { data, error } = await useFetch("/api/logout", {
+    const { data, error } = await useApiFetch("/api/logout", {
       method: "POST",
       credentials: "include",
     });
+
+    console.log("useAuthApi-logout", error.value);
 
     if (error.value) {
       throw new Error(error.value.data?.message || "登出失败");
@@ -30,5 +18,5 @@ export const useAuthApi = () => {
     return useCookie("is_logged_in").value;
   };
 
-  return { login, logout, checkAuth };
+  return { logout, checkAuth };
 };
