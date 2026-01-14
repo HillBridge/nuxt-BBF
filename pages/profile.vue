@@ -1,8 +1,10 @@
 <script setup lang="ts">
 
-const { fetchProfileInfo } = useProfileApi();
-const { profile, error, pending, refresh } = await fetchProfileInfo();
+const { data, error, pending, refresh } = await useClientFetch("/api/profile", {
+    method: 'GET'
+});
 
+const { data: profileData } = data.value;
 
 // 手动刷新数据
 const handleRefresh = (e: MouseEvent) => {
@@ -20,7 +22,7 @@ const handleRefresh = (e: MouseEvent) => {
     <div v-else-if="pending">加载中...</div>
 
     <div v-else>
-        <h1>username: {{ profile?.username }}</h1>
+        <h1>username: {{ profileData?.username }}</h1>
         <button @click="handleRefresh">刷新数据</button>
     </div>
 </template>

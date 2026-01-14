@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
 import cookieParser from "cookie-parser";
-import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import jwt from "jsonwebtoken";
@@ -8,14 +7,14 @@ import jwt from "jsonwebtoken";
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    allowMethods: ["GET", "POST"],
-    allowHeaders: ["Content-Type", "Accept", "Authorization"],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: "http://localhost:3000",
+//     allowMethods: ["GET", "POST"],
+//     allowHeaders: ["Content-Type", "Accept", "Authorization"],
+//     credentials: true,
+//   })
+// );
 
 // const saltRounds = 2;
 // const hashedPassword = await bcrypt.hash("123456", saltRounds);

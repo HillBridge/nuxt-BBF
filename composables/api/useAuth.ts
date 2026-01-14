@@ -1,9 +1,8 @@
 export const useAuthApi = () => {
-  const login = async (credentials: { email: string; password: string }) => {
+  const login = async (requestData: { email: string; password: string }) => {
     const { data, error } = await useFetch("/api/login", {
       method: "POST",
-      body: credentials,
-      credentials: "include", // 必须开启
+      body: requestData,
     });
 
     if (error.value) {

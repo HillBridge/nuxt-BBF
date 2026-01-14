@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
-  console.log("middleware proxy", event.path, event.method);
+  const is_logged_in = getCookie(event, "is_logged_in");
+  // console.log("middleware proxy", event.path, event.method, is_logged_in);
 
   // 只代理API请求
   if (!event.path.startsWith("/api")) return;
@@ -15,41 +16,30 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const config = useRuntimeConfig();
-  const backendUrl = `${config.backendUrl}${event.path}`;
-  return;
+  const whitelist = ["/api/login", "/api/register", "/api/forgot-password"];
 
-  const response = await $fetch.raw(backendUrl, {
-    method: event.method,
-    body: event.method === "POST" ? await readBody(event) : undefined,
-    credentials: "include",
-  });
-
-  // 获取后端设置的Cookie
-  const authCookie = response.headers
-    .get("set-cookie")
-    ?.split(";")
-    ?.find((c: any) => c.trim().startsWith("auth_token="))
-    ?.split("=")[1];
-
-  // 设置客户端Cookie
-  if (authCookie) {
-    setCookie(event, "auth_token", authCookie, {
-      httpOnly: true,
-      path: "/",
-      maxAge: 3600,
-      secure: true, // https
-      sameSite: "none",
-    });
-
-    setCookie(event, "is_logged_in", "9999", {
-      httpOnly: false,
-      path: "/",
-      maxAge: 3600,
-      secure: true, // https
-      sameSite: "none",
+  if (!is_logged_in && !whitelist.includes(event.path)) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: "Unauthorized",
     });
   }
 
-  return response._data;
+  // const config = useRuntimeConfig();
+  // const backendUrl = `${config.backendUrl}${event.path}`;
+  // const token = getDecryptedAuthToken(event, config.cookieSecretKey);
+  // console.log("middleware proxy-token", token);
+
+  // const response = await $fetch.raw(backendUrl, {
+  //   method: event.method,
+  //   body: event.method === "POST" ? await readBody(event) : undefined,
+  //   credentials: "include",
+  //   headers: {
+  //     auth_token: token || "",
+  //   },
+  // });
+
+  // console.log("middleware proxy-response", response);
+
+  // return response;
 });

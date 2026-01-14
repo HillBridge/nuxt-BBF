@@ -1,13 +1,42 @@
 import { throwJdError } from "~/utils/error";
 
+/**
+ * 从 cookie 字符串中解析指定名称的 cookie 值
+ * @param cookieString cookie 字符串，格式: "key1=value1; key2=value2"
+ * @param name 要查找的 cookie 名称
+ * @returns cookie 值或 null
+ */
+function getCookieFromString(
+  cookieString: string | undefined,
+  name: string
+): string | null {
+  if (!cookieString) return null;
+
+  const cookies = cookieString.split(";").map((cookie) => cookie.trim());
+  const targetCookie = cookies.find((cookie) => cookie.startsWith(`${name}=`));
+
+  if (!targetCookie) return null;
+
+  return targetCookie.substring(name.length + 1);
+}
+
 export const useClientFetch = async <T>(url: string, options?: any) => {
-  const cookies = useRequestHeaders(["cookie"]);
+  const headers = useRequestHeaders(["cookie"]);
+  const cookieString = headers.cookie;
+
+  // 从 cookie 字符串中解析 auth_token
+  const authToken = getCookieFromString(cookieString, "auth_token");
+
+  console.log("useClientFetch-cookies", cookieString);
+  console.log("useClientFetch-auth_token", authToken);
 
   const { data, pending, error, refresh } = await useFetch<T>(url, {
     ...options,
     credentials: "include",
     headers: {
-      ...cookies,
+      ...headers,
+      // 如果需要将 auth_token 作为单独的 header 传递，可以取消下面的注释
+      // ...(authToken && { auth_token: authToken }),
     },
     onResponse({ response }) {
       if (response._data.code === 401 || response.status === 401) {
