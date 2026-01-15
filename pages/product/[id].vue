@@ -39,33 +39,31 @@ interface ProductData {
   [key: string]: any;
 }
 
-// 使用 ref 来存储数据和错误
-const productData = ref<ProductData | null>(null)
-const error = ref<any>(null)
 
 // 获取数据
-try {
-  const { data } = await useServerFetch<ProductData>(`/api/products/${id}`, {
-    transform: (data: ProductData) => {
-      if (data.code !== 200) {
+const { data: productData, error } = await useApiFetch<ProductData>(`/api/products`, {
+  method: 'GET',
+  params: {
+    id: id
+  },
+  transform: (data: ProductData) => {
+    if (data.code !== 200) {
 
-        // 当http成功, 但是业务错误, 将后台的错误信息以ui错误的形式展示出来, 并提供重试, 返回首页, 联系客服, 反馈问题等操作
-        // 相比于弹出框 可以更长久的展示错误信息, 并提供操作
-        throwJdError({
-          type: 'BUSINESS',
-          code: 'PRODUCT_UNAVAILABLE',
-          message: '该商品已下架',
-          recoveryActions: ['home', 'similar', 'notify'],
-          metadata: { productId: id }
-        })
-      }
-      return data
+      console.log('product-transform', data)
+
+      // 当http成功, 但是业务错误, 将后台的错误信息以ui错误的形式展示出来, 并提供重试, 返回首页, 联系客服, 反馈问题等操作
+      // 相比于弹出框 可以更长久的展示错误信息, 并提供操作
+      throwJdError({
+        type: 'BUSINESS',
+        code: 'PRODUCT_UNAVAILABLE',
+        message: '该商品已下架',
+        recoveryActions: ['home', 'similar', 'notify'],
+        metadata: { productId: id }
+      })
     }
-  })
-  productData.value = data.value
-} catch (err) {
-  error.value = err
-}
+    return data
+  }
+})
 
 const useToast = () => ({
   show: (message: string) => {

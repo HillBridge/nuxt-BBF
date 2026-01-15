@@ -25,7 +25,16 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     });
   }
 
+  // *******  特别针对用户手动篡改cookie的情况  *******
+  const clearCookies = () => {
+    const cookies = useCookie("auth_token");
+    const isLoggedInCookie = useCookie("is_logged_in");
+    cookies.value = null;
+    isLoggedInCookie.value = null;
+  };
+
   if (!isLoggedIn && to.path === "/login") {
+    clearCookies();
     return;
   }
 
@@ -33,6 +42,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   // *******  特别针对用户刷新浏览器的情况  *******
   // *******  与useApiFetch中的onResponse配合使用, 这里监听的是api请求接口情况  *******
   if (!isLoggedIn && !publicRoutes.includes(to.path)) {
+    clearCookies();
     return navigateTo("/login", {
       redirectCode: 302,
       external: false,
