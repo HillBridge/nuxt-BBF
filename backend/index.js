@@ -117,14 +117,13 @@ app.get("/api/profile", (req, res) => {
 });
 
 // 登出接口
-app.post("/api/logout", (req, res) => {
-  console.log("server-logout");
-  res.json({
-    code: 200,
-    msg: "登出成功",
-    success: true,
-  });
-});
+// app.post("/api/logout", (req, res) => {
+//   res.json({
+//     code: 200,
+//     msg: "登出成功",
+//     success: true,
+//   });
+// });
 
 app.get("/api/products/:id", (req, res) => {
   const { id } = req.params;

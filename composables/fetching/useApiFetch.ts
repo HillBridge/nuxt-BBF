@@ -4,7 +4,6 @@ export const useApiFetch = async <T>(url: string, options?: any) => {
   const { data, pending, error, refresh } = await useFetch<T>(url, {
     ...options,
     onResponse({ response }) {
-      console.log("useApiFetch------onResponse", response.status);
       if (response._data.code === 401 || response.status === 401) {
         return navigateTo("/login");
       }

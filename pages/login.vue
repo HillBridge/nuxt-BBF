@@ -12,7 +12,6 @@ const handleSubmit = async () => {
   const { code, message } = data.value;
 
   if (code === 200) {
-    console.log("navigate to profile");
     await navigateTo('/profile')
   } else {
     alert(`login error: ${message}`);
