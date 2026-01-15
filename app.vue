@@ -23,6 +23,10 @@
       </div>
     </template>
   </NuxtErrorBoundary>
+
+  <!-- 全局错误弹出框 -->
+  <JdErrorModal :error="errorModal.error.value" :visible="errorModal.visible.value" @close="errorModal.hideError"
+    @retry="errorModal.handleRetry" @go-home="errorModal.handleGoHome" @contact="errorModal.handleContact" />
 </template>
 
 <script setup>
@@ -47,4 +51,7 @@
 const handleError = (error) => {
   console.error("Global error:", error);
 };
+
+// 初始化全局错误弹出框
+const errorModal = useErrorModal();
 </script>

@@ -7,6 +7,38 @@ export const useApiFetch = async <T>(url: string, options?: any) => {
       if (response._data.code === 401 || response.status === 401) {
         return navigateTo("/login");
       }
+
+      // 检查业务错误（HTTP成功但业务逻辑错误）
+      if (
+        response._data &&
+        typeof response._data === "object" &&
+        "code" in response._data
+      ) {
+        const responseData = response._data as any;
+
+        // 如果业务返回的 code 不是 200，且没有设置 showErrorModal: false，则显示错误弹出框
+        if (responseData.code !== 200 && options?.showErrorModal !== false) {
+          console.log("useApiFetch------onResponse", responseData);
+          // 只在客户端显示弹出框
+          if (import.meta.client) {
+            const errorModal = useErrorModal();
+            errorModal.showError({
+              type: "BUSINESS",
+              code: responseData.code?.toString() || "UNKNOWN_ERROR",
+              message:
+                responseData.msg ||
+                responseData.message ||
+                "操作失败，请稍后重试",
+              severity: "MEDIUM",
+              isRetryable: true,
+              metadata: {
+                url: url,
+                responseData: responseData,
+              },
+            });
+          }
+        }
+      }
     },
   });
 
@@ -29,7 +61,6 @@ export const useApiFetch = async <T>(url: string, options?: any) => {
   if (data.value && options?.transform) {
     try {
       const transformedData = options.transform(data.value);
-      console.log("transformedData", transformedData);
       return {
         data: transformedData,
         pending,
@@ -38,7 +69,7 @@ export const useApiFetch = async <T>(url: string, options?: any) => {
       };
     } catch (transformError) {
       // 让 transform 中的错误冒泡
-      if (process.client) {
+      if (import.meta.client) {
         throwJdError({
           type: "SYSTEM",
           code: "TRANSFORM_ERROR",

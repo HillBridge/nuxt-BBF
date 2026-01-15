@@ -27,7 +27,8 @@
 </template>
 
 <script lang="ts" setup>
-import { throwJdError } from '~/utils/error';
+import type { JdError } from '~/types/error';
+import { createJdError, isJdError } from '~/utils/error';
 
 const { id } = useRoute().params
 
@@ -41,29 +42,42 @@ interface ProductData {
 
 
 // 获取数据
-const { data: productData, error } = await useApiFetch<ProductData>(`/api/products`, {
+// 注意：useApiFetch 会自动检测业务错误（code !== 200）并显示错误弹出框
+// 如果需要禁用自动弹出框，可以设置 showErrorModal: false
+const { data: productData, error: fetchError } = await useApiFetch<ProductData>(`/api/products`, {
   method: 'GET',
   params: {
     id: id
   },
   transform: (data: ProductData) => {
-    if (data.code !== 200) {
-
-      console.log('product-transform', data)
-
-      // 当http成功, 但是业务错误, 将后台的错误信息以ui错误的形式展示出来, 并提供重试, 返回首页, 联系客服, 反馈问题等操作
-      // 相比于弹出框 可以更长久的展示错误信息, 并提供操作
-      throwJdError({
-        type: 'BUSINESS',
-        code: 'PRODUCT_UNAVAILABLE',
-        message: '该商品已下架',
-        recoveryActions: ['home', 'similar', 'notify'],
-        metadata: { productId: id }
-      })
-    }
+    // 业务错误已由 useApiFetch 的 onResponse 处理并显示弹出框
+    // 这里只需要返回数据即可
     return data
   }
 })
+
+// 将 FetchError 转换为 JdError（仅用于网络错误，业务错误已通过弹出框处理）
+const error = computed<JdError | null>(() => {
+  if (!fetchError.value) return null;
+
+  if (isJdError(fetchError.value)) {
+    return fetchError.value;
+  }
+
+  // 将 FetchError 转换为 JdError
+  return createJdError({
+    type: 'NETWORK',
+    code: `HTTP_${fetchError.value.statusCode || 500}`,
+    message: fetchError.value.message || '网络请求失败',
+    severity: (fetchError.value.statusCode || 500) >= 500 ? 'HIGH' : 'MEDIUM',
+    isRetryable: (fetchError.value.statusCode || 500) >= 500,
+    metadata: {
+      statusCode: fetchError.value.statusCode,
+      url: `/api/products`,
+    },
+  });
+})
+
 
 const useToast = () => ({
   show: (message: string) => {

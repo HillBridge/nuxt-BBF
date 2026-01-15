@@ -24,5 +24,7 @@ const handleRefresh = (e: MouseEvent) => {
     <div v-else>
         <h1>username: {{ profileData?.username }}</h1>
         <button @click="handleRefresh">刷新数据</button>
+
+        <button @click="navigateTo('/product/12')">to product</button>
     </div>
 </template>

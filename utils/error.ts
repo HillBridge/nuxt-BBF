@@ -20,13 +20,11 @@ export function createJdError(options: Partial<JdError>): JdError {
 
 // 客户端错误抛出工具
 export function throwJdError(options: Partial<JdError>): never {
-  console.log("throwJdError-options", options);
   const error = createJdError(options);
 
   // 在客户端抛出错误并触发全局事件
-  if (process.client) {
+  if (import.meta.client) {
     // 触发全局错误事件，让 JdErrorBoundary 捕获
-    console.log("throwJdError-error", error);
     const errorEvent = new ErrorEvent("error", {
       error,
       message: error.message,
