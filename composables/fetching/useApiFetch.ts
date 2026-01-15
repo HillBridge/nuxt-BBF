@@ -11,27 +11,8 @@ export const useApiFetch = async <T>(url: string, options?: any) => {
       }
 
       // 检查业务错误（HTTP成功但业务逻辑错误）
-      // 如果业务返回的 code 不是 200，且没有设置 showErrorModal: false，则显示错误弹出框
       if (code !== 200 && options?.showErrorModal !== false) {
         console.log("useApiFetch------onResponse", code, status);
-        // 只在客户端显示弹出框
-        // if (import.meta.client) {
-        //   const errorModal = useErrorModal();
-        //   errorModal.showError({
-        //     type: "BUSINESS",
-        //     code: code?.toString() || "UNKNOWN_ERROR",
-        //     message:
-        //       response?._data?.msg ||
-        //       response?._data?.message ||
-        //       "操作失败，请稍后重试",
-        //     severity: "MEDIUM",
-        //     isRetryable: true,
-        //     metadata: {
-        //       url: url,
-        //       responseData: response?._data,
-        //     },
-        //   });
-        // }
 
         throwJdError({
           type: "BUSINESS",
