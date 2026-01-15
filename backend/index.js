@@ -138,6 +138,7 @@ app.get("/api/products/:id", (req, res) => {
       },
     });
   } else {
+    // res.status(500);
     res.json({
       code: 500,
       msg: "no data",

@@ -28,7 +28,7 @@
 
 <script lang="ts" setup>
 import type { JdError } from '~/types/error';
-import { createJdError, isJdError } from '~/utils/error';
+import { isJdError } from '~/utils/error';
 
 const { id } = useRoute().params
 
@@ -59,23 +59,46 @@ const { data: productData, error: fetchError } = await useApiFetch<ProductData>(
 // 将 FetchError 转换为 JdError（仅用于网络错误，业务错误已通过弹出框处理）
 const error = computed<JdError | null>(() => {
   if (!fetchError.value) return null;
+  console.log('product-page-error', fetchError.value)
 
   if (isJdError(fetchError.value)) {
     return fetchError.value;
   }
 
+  if (import.meta.client) {
+    const errorModal = useErrorModal();
+    errorModal.showError({
+      type: "BUSINESS",
+      code: fetchError.value.statusCode?.toString() || "UNKNOWN_ERROR",
+      message:
+        fetchError.value.message ||
+        fetchError.value.message ||
+        "操作失败，请稍后重试",
+      severity: "MEDIUM",
+      isRetryable: true,
+      metadata: {
+        url: `/api/products`,
+        responseData: fetchError.value,
+      },
+    });
+    return null;
+  }
+
+  // 服务端情况下返回 null（错误已在客户端处理）
+  return null;
+
   // 将 FetchError 转换为 JdError
-  return createJdError({
-    type: 'NETWORK',
-    code: `HTTP_${fetchError.value.statusCode || 500}`,
-    message: fetchError.value.message || '网络请求失败',
-    severity: (fetchError.value.statusCode || 500) >= 500 ? 'HIGH' : 'MEDIUM',
-    isRetryable: (fetchError.value.statusCode || 500) >= 500,
-    metadata: {
-      statusCode: fetchError.value.statusCode,
-      url: `/api/products`,
-    },
-  });
+  // return createJdError({
+  //   type: 'NETWORK',
+  //   code: `HTTP_${fetchError.value.statusCode || 500}`,
+  //   message: fetchError.value.message || '网络请求失败',
+  //   severity: (fetchError.value.statusCode || 500) >= 500 ? 'HIGH' : 'MEDIUM',
+  //   isRetryable: (fetchError.value.statusCode || 500) >= 500,
+  //   metadata: {
+  //     statusCode: fetchError.value.statusCode,
+  //     url: `/api/products`,
+  //   },
+  // });
 })
 
 
