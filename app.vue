@@ -23,6 +23,10 @@
       </div>
     </template>
   </NuxtErrorBoundary>
+  <!-- 全局消息弹出框 -->
+  <JdMessageBox :type="messageBoxState.type" :title="messageBoxState.title" :message="messageBoxState.message"
+    :visible="messageBoxState.visible" :close-on-click-overlay="messageBoxState.closeOnClickOverlay"
+    @update:visible="handleMessageBoxVisibleChange" @close="handleMessageBoxClose" />
 </template>
 
 <script setup>
@@ -46,5 +50,18 @@
 
 const handleError = (error) => {
   console.error("Global error:", error);
+};
+
+// 消息弹出框管理
+const { state: messageBoxState, handleClose } = useMessageBox();
+
+const handleMessageBoxVisibleChange = (visible) => {
+  if (!visible) {
+    handleClose();
+  }
+};
+
+const handleMessageBoxClose = () => {
+  handleClose();
 };
 </script>

@@ -27,6 +27,8 @@
 <script lang="ts" setup>
 const { id } = useRoute().params
 
+const { showMessage } = useMessageBox();
+
 // 定义产品数据类型
 interface ProductData {
   available: boolean;
@@ -46,4 +48,11 @@ const { data: productData, error: fetchError } = await useApiFetch<ProductData>(
     return data
   }
 })
+
+if (fetchError.value) {
+  showMessage({
+    type: 'error',
+    message: fetchError.value.message
+  })
+}
 </script>
