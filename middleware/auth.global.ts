@@ -1,5 +1,6 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const nuxtApp = useNuxtApp();
+  console.log("middleware-auth-global");
 
   // 避免在客户端 hydration 阶段重复执行
   if (

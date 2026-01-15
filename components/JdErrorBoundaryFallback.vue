@@ -2,7 +2,7 @@
   <div class="jd-error-container">
     <div class="error-header">
       <JdLogo class="error-logo" />
-      <h2 class="error-title">服务暂时不可用 22</h2>
+      <h2 class="error-title">服务暂时不可用!!!</h2>
     </div>
 
     <div class="error-content">

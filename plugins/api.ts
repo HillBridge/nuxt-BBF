@@ -5,6 +5,8 @@ export default defineNuxtPlugin(() => {
   // 我们可以通过全局拦截器来处理错误
   const nuxtApp = useNuxtApp();
 
+  console.log("plugin-nuxtApp");
+
   // 添加全局错误处理器
   nuxtApp.hook("app:error", (error: any) => {
     console.log("plugin-app:error", error.statusCode);
