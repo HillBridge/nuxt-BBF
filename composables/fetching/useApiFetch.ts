@@ -6,6 +6,7 @@ export const useApiFetch = async <T>(url: string, options?: any) => {
     onResponse({ response }) {
       const code = response?._data?.code;
       const status = response?.status;
+      // console.log("onResponse", code, status);
       if (code === 401 || status === 401) {
         return navigateTo("/login");
       }
@@ -27,19 +28,6 @@ export const useApiFetch = async <T>(url: string, options?: any) => {
           },
         });
       }
-    },
-    onResponseError(error) {
-      throwJdError({
-        type: "NETWORK",
-        code: `HTTP_${error.response._data.statusCode}`,
-        message: error.response._data.message || "网络请求失败",
-        severity: error.response._data.statusCode >= 500 ? "HIGH" : "MEDIUM",
-        isRetryable: error.response._data.statusCode >= 500,
-        metadata: {
-          statusCode: error.response._data.statusCode,
-          url: url,
-        },
-      });
     },
   });
 
