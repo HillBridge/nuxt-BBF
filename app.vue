@@ -27,6 +27,9 @@
   <JdMessageBox :type="messageBoxState.type" :title="messageBoxState.title" :message="messageBoxState.message"
     :visible="messageBoxState.visible" :close-on-click-overlay="messageBoxState.closeOnClickOverlay"
     @update:visible="handleMessageBoxVisibleChange" @close="handleMessageBoxClose" />
+
+  <!-- 断网通知组件 -->
+  <NetworkOfflineNotification />
 </template>
 
 <script setup>
