@@ -12,8 +12,6 @@ export const useApiFetch = async <T>(url: string, options?: any) => {
 
       // 检查业务错误（HTTP成功但业务逻辑错误）
       if (code !== 200 && options?.showErrorModal !== false) {
-        console.log("useApiFetch------onResponse", code, status);
-
         throwJdError({
           type: "BUSINESS",
           code: code?.toString() || "UNKNOWN_ERROR",

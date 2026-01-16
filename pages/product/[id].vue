@@ -43,9 +43,6 @@ const { data: productData, error: fetchError } = await useApiFetch<ProductData>(
   method: 'GET',
   params: {
     id: id
-  },
-  transform: (data: ProductData) => {
-    return data
   }
 })
 
