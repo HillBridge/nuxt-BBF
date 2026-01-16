@@ -10,6 +10,7 @@ export default defineNuxtPlugin(() => {
   // 添加全局错误处理器
   nuxtApp.hook("app:error", (error: any) => {
     console.log("plugin-app:error", error.statusCode);
+    return;
     if (error?.statusCode === 401) {
       throw createJdError({
         type: "AUTH",
