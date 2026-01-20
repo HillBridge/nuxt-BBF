@@ -2,7 +2,11 @@ import bcrypt from "bcryptjs";
 import cookieParser from "cookie-parser";
 import "dotenv/config";
 import express from "express";
+import fs from "fs";
 import jwt from "jsonwebtoken";
+
+const privateKey = fs.readFileSync("./keys/private.key", "utf8");
+const publicKey = fs.readFileSync("./keys/public.key", "utf8");
 
 const app = express();
 app.use(express.json());
@@ -30,6 +34,7 @@ const users = [
   },
 ];
 
+// 对称加密的密钥, 不安全,
 const JWT_SECRET = "1234567890";
 
 // 登录接口
@@ -56,9 +61,12 @@ app.post("/api/login", async (req, res) => {
   }
 
   // 3. 生成JWT
-  const token = jwt.sign({ userId: user.id }, JWT_SECRET, {
+  const token = jwt.sign({ userId: user.id }, privateKey, {
     expiresIn: "1h",
+    algorithm: "RS256",
   });
+
+  console.log("token-generated", token);
 
   // 4. 设置安全Cookie
   // res.cookie("auth_token", token, {
@@ -94,7 +102,11 @@ app.get("/api/profile", (req, res) => {
 
   try {
     // 验证token
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, publicKey, {
+      algorithms: ["RS256"],
+    });
+
+    console.log("decoded", decoded);
     const userId = decoded?.userId;
     const user = users.find((u) => u.id === userId);
     if (user) {
